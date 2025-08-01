@@ -1,31 +1,36 @@
-![Prisma Kysely](assets/logo-hero.png)
+# Prisma Kysely Zod
 
 <p align="center">
-<a href="https://www.npmjs.com/package/prisma-kysely"><img src="https://badge.fury.io/js/prisma-kysely.svg"></a>
-<a href="https://ko-fi.com/N4N7QQZVA"><img height=20 src="https://ko-fi.com/img/githubbutton_sm.svg"></a>
+<a href="https://www.npmjs.com/package/prisma-kysely-zod"><img src="https://badge.fury.io/js/prisma-kysely-zod.svg"></a>
 </p>
 
 <br/>
 
-![Hero image "Generate Kysely types directly from your Prisma
-schema"](assets/hero.png)
+> 🚧 **Library in active development**
 
-<br/>
+**Prisma Kysely Zod** extends the original `prisma-kysely` generator to provide comprehensive Zod schema generation alongside Kysely types. Generate type-safe database queries AND runtime validation schemas from your Prisma schema in one go!
 
-> 🚧 **Library and README in progress...**
+Do you like Prisma's migration flow, schema language and DX but want more control over your queries? Do you need runtime validation for your database types? Do you want to harness the raw power of SQL without losing type safety?
 
-Do you like Prisma's migration flow, schema language and DX but not the
-limitations of the Prisma Client? Do you want to harness the raw power of SQL
-without losing the safety of the TypeScript type system?
+**Enter `prisma-kysely-zod`**!
 
-**Enter `prisma-kysely`**!
+This generator creates:
+- 🚀 Kysely types for type-safe SQL queries
+- ✅ Zod schemas for runtime validation
+- 🎯 CRUD operation schemas (create, update, findMany)
+- 🏗️ Three-layer architecture schemas
+- 🔖 Branded types for enhanced type safety
 
 ### Setup
 
-1. Install `prisma-kysely` using your package manager of choice:
+1. Install `prisma-kysely-zod` using your package manager of choice:
 
    ```sh
-   yarn add prisma-kysely
+   npm install prisma-kysely-zod
+   # or
+   yarn add prisma-kysely-zod
+   # or
+   pnpm add prisma-kysely-zod
    ```
 
 2. Replace (or augment) the default client generator in your `schema.prisma`
@@ -33,7 +38,7 @@ without losing the safety of the TypeScript type system?
 
    ```prisma
    generator kysely {
-       provider = "prisma-kysely"
+       provider = "prisma-kysely-zod"
 
        // Optionally provide a destination directory for the generated file
        // and a filename of your choice
@@ -41,39 +46,54 @@ without losing the safety of the TypeScript type system?
        fileName = "types.ts"
        // Optionally generate runtime enums to a separate file
        enumFileName = "enums.ts"
+       
+       // Zod-specific options
+       generateBrands = true
+       generateCrudSchemas = true
+       generateThreeLayerSchemas = true
    }
    ```
 
 3. Run `prisma migrate dev` or `prisma generate` and use your freshly generated
-   types when instantiating Kysely!
+   types and schemas!
+
+   ```typescript
+   import { DB } from './db/types'
+   import { UserCreateSchema, UserUpdateSchema } from './db/schemas'
+   import { Kysely } from 'kysely'
+
+   // Use Kysely for queries
+   const db = new Kysely<DB>({ ... })
+   const users = await db.selectFrom('User').selectAll().execute()
+
+   // Use Zod schemas for validation
+   const newUser = UserCreateSchema.parse(req.body)
+   const updatedUser = UserUpdateSchema.parse(req.body)
+   ```
 
 ### Motivation
 
-Prisma's migration and schema definition workflow is undeniably great, and the
-typesafety of the Prisma client is top notch, but there comes a time in every
-Prisma user's life where the client becomes just a bit too limiting. Sometimes
-we just need to write our own multi table joins and squeeze that extra drop of
-performance out of our apps. The Prisma client offers two options: using their
-simplified query API or going all-in with raw SQL strings, sacrificing type
-safety.
+Prisma's migration and schema definition workflow is undeniably great, but developers often need:
 
-This is where Kysely shines. Kysely provides a toolbox to write expressive,
-type-safe SQL queries with full autocompletion. The problem with Kysely though
-is that it's not super opinionated when it comes to schema definition and
-migration. What many users resort to is using something like Prisma to define
-the structure of their databases, and `kysely-codegen` to introspect their
-databases post-migration.
+1. **More control over SQL queries** - Sometimes you need complex joins, CTEs, or database-specific features
+2. **Runtime validation** - TypeScript types are great, but you need runtime validation for user input
+3. **Different schemas for different operations** - Create, update, and query operations often need different validation rules
 
-This package, `prisma-kysely`, is meant as a more integrated and convenient way
-to keep Kysely types in sync with Prisma schemas. After making the prerequisite
-changes to your schema file, it's just as convenient and foolproof as using
-Prisma's own client.
+**Prisma Kysely Zod** solves all three problems:
 
-I've been using this combo for a few months now in tandem with Cloudflare's D1
-for my private projects and Postgres at work. It's been a game-changer, and I
-hope it's just as useful for you! 😎
+✨ **Kysely Integration**: Write type-safe SQL with full control while keeping Prisma's excellent migration workflow
+
+✅ **Zod Schemas**: Automatically generated validation schemas that match your database types exactly
+
+🏗️ **Architecture Support**: Generate schemas tailored for three-layer architecture patterns
+
+🔖 **Branded Types**: Optional branded types for extra type safety (e.g., `UserId` instead of just `string`)
+
+This generator builds upon the excellent `prisma-kysely` package, extending it with comprehensive Zod schema generation for a complete type-safe database solution.
 
 ### Config
+
+#### Kysely Options (from original prisma-kysely)
 
 | Key                      | Description                                                                                                                                                                                                                                                                                                                                                                         | Default    |
 | :----------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
@@ -83,11 +103,81 @@ hope it's just as useful for you! 😎
 | `enumFileName`           | The filename for the generated enums. Omitting this will generate enums and files in the same file.                                                                                                                                                                                                                                                                                 |            |
 | `camelCase`              | Enable support for Kysely's camelCase plugin                                                                                                                                                                                                                                                                                                                                        | `false`    |
 | `readOnlyIds`            | Use Kysely's `GeneratedAlways` for `@id` fields with default values, preventing insert and update.                                                                                                                                                                                                                                                                                  | `false`    |
-| `[typename]TypeOverride` | Allows you to override the resulting TypeScript type for any Prisma type. Useful when targeting a different environment than Node (e.g. WinterCG compatible runtimes that use UInt8Arrays instead of Buffers for binary types etc.) Check out the [config validator](https://github.com/valtyr/prisma-kysely/blob/main/src/utils/validateConfig.ts) for a complete list of options. |            |
+| `[typename]TypeOverride` | Allows you to override the resulting TypeScript type for any Prisma type.                                                                                                                                                                                                                                                                                                          |            |
 | `dbTypeName`             | Allows you to override the exported type with all tables                                                                                                                                                                                                                                                                                                                            | `DB`       |
-| `groupBySchema`          | When using `multiSchema` preview features, group all models and enums for a schema into their own namespace. (Ex: `model Dog { @@schema("animals") }` will be available under `Animals.Dog`)                                                                                                                                                                                        | `false`    |
+| `groupBySchema`          | When using `multiSchema` preview features, group all models and enums for a schema into their own namespace.                                                                                                                                                                                                                                                                        | `false`    |
 | `filterBySchema`         | When using `multiSchema` preview features, only include models and enums for the specified schema.                                                                                                                                                                                                                                                                                  | `false`    |
 | `defaultSchema`          | When using `multiSchema` preview features, which schema should not be wrapped by a namespace.                                                                                                                                                                                                                                                                                       | `'public'` |
+
+#### Zod-Specific Options
+
+| Key                         | Description                                                                                                     | Default    |
+| :-------------------------- | :-------------------------------------------------------------------------------------------------------------- | ---------- |
+| `generateBrands`            | Generate branded types (e.g., `UserId` instead of `string`)                                                    | `false`    |
+| `generateCrudSchemas`       | Generate Create, Update, and FindMany schemas for each model                                                   | `false`    |
+| `generateThreeLayerSchemas` | Generate schemas optimized for three-layer architecture (API, Service, Repository layers)                      | `false`    |
+| `brandedTypesFile`          | Custom filename for branded types                                                                              | `brands.ts`|
+| `crudSchemasFile`           | Custom filename for CRUD schemas                                                                               | `crud.ts`  |
+| `threeLayerFile`            | Custom filename for three-layer schemas                                                                        | `layers.ts`|
+
+### Zod Schema Features
+
+#### CRUD Schemas
+
+When `generateCrudSchemas` is enabled, the generator creates specialized schemas for different operations:
+
+```typescript
+// UserCreateSchema - for creating new users
+const newUser = UserCreateSchema.parse({
+  name: "John Doe",
+  email: "john@example.com"
+})
+
+// UserUpdateSchema - for updating users (all fields optional)
+const updates = UserUpdateSchema.parse({
+  name: "Jane Doe"
+})
+
+// UserFindManySchema - for query parameters
+const query = UserFindManySchema.parse({
+  where: { email: { contains: "@example.com" } },
+  orderBy: { createdAt: "desc" },
+  take: 10
+})
+```
+
+#### Three-Layer Architecture Schemas
+
+Perfect for clean architecture patterns with distinct API, Service, and Repository layers:
+
+```typescript
+// API Layer - includes all fields
+const apiUser = UserAPISchema.parse(req.body)
+
+// Service Layer - excludes generated fields like timestamps
+const serviceUser = UserServiceSchema.parse(data)
+
+// Repository Layer - for database operations
+const repoUser = UserRepositorySchema.parse(dbResult)
+```
+
+#### Branded Types
+
+Enhance type safety with branded types:
+
+```typescript
+// Instead of string IDs everywhere
+type UserId = Brand<string, "UserId">
+type PostId = Brand<string, "PostId">
+
+// Prevents mixing up IDs
+function getUser(id: UserId) { /* ... */ }
+function getPost(id: PostId) { /* ... */ }
+
+// TypeScript will catch this error!
+const userId: UserId = "123" as UserId
+getPost(userId) // Error: Argument of type 'UserId' is not assignable to parameter of type 'PostId'
+```
 
 ### Per-field type overrides
 
@@ -149,44 +239,62 @@ model SQLiteUser {
 [Check out the Prisma Docs for more
 info.](https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#attribute-functions)
 
+### Zod Annotations
+
+Enhance your Prisma schema with Zod-specific validations using comments:
+
+```prisma
+model User {
+  id      String @id @default(cuid())
+  
+  /// @zod.min(3).max(100)
+  name    String
+  
+  /// @zod.email()
+  email   String @unique
+  
+  /// @zod.min(18).max(120)
+  age     Int
+  
+  /// @zod.url().optional()
+  website String?
+  
+  /// @zod.custom(z => z.regex(/^[A-Z]{2}[0-9]{4}$/))
+  code    String
+}
+```
+
+These annotations are parsed and included in the generated Zod schemas, giving you runtime validation that matches your database constraints.
+
 ### Contributions
 
-OMG you actually want to contribute? I'm so thankful! 🙇‍♂️
+Contributions are welcome! This project builds upon the excellent work of the original `prisma-kysely` package.
 
-Here's everything you need to do (let me know if something's missing...)
-
-1. Fork and pull the repository
-2. Run `yarn install` and `yarn dev` to start `tsc` in watch mode.
+1. Fork and clone the repository
+2. Run `pnpm install` and `pnpm dev` to start development
 3. Make changes to the source code
-4. Test your changes by creating `prisma/schema.prisma`, running `yarn prisma generate` and checking the output in `prisma/types.ts`. The provider must be set
-   as follows to reference the dev build:
-   ```prisma
-   generator kysely {
-       provider = "node ./dist/bin.js"
-   }
-   ```
-5. Create a pull request! If your changes make sense, I'll try my best to review
-   and merge them quickly.
+4. Test your changes by creating `prisma/schema.prisma` and running `pnpm prisma generate`
+5. Create a pull request with your improvements
 
-I'm not 100% sure the [type
-maps](https://github.com/valtyr/prisma-kysely/blob/main/src/helpers/generateFieldType.ts)
-are correct for every dialect, so any and all contributions on that front would
-be greatly appreciated. The same goes for any bug you come across or improvement
-you can think of.
+Areas that could use contributions:
+- Additional Zod validations and transformations
+- Support for more Prisma features
+- Performance optimizations
+- Documentation improvements
 
-### Shoutouts
+### Credits
 
-- I wouldn't have made this library if I hadn't used Robin Blomberg's amazing
-  [Kysely Codegen](https://github.com/RobinBlomberg/kysely-codegen). For anyone
-  that isn't using Prisma for migrations I wholeheartedly recommend his package.
-- The implicit many-to-many table generation code is partly inspired by and
-  partly stolen from
-  [`prisma-dbml-generator`](https://github.com/notiz-dev/prisma-dbml-generator/blob/752f89cf40257a9698913294b38843ac742f8345/src/generator/many-to-many-tables.ts).
-  Many-too-many thanks to them!
-- Igal Klebanov ([@igalklebanov](https://github.com/igalklebanov)) and Jökull Sólberg ([@jokull](https://github.com/jokull)) for being this library's
-  main proponents on Twitter!
-- The authors and maintainers of Kysely ❤️‍🔥
+This project extends the excellent [prisma-kysely](https://github.com/arthurfiorette/prisma-kysely) generator with Zod schema generation capabilities.
 
-```diff
-+ Boyce-Codd gang unite! 💽
-```
+**Original prisma-kysely created by:**
+- Valtyr Örn Kjartansson ([@valtyr](https://github.com/valtyr))
+- And all the amazing contributors to the original project
+
+**Special thanks to:**
+- The Kysely team for the incredible SQL query builder
+- The Zod team for the best TypeScript schema validation library
+- The Prisma team for their fantastic migration and schema tools
+
+### License
+
+MIT - See LICENSE file for details

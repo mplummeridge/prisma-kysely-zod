@@ -1,28 +1,22 @@
 {
-    "name": "@repo/prisma-kysely",
-    "version": "1.8.0",
-    "description": "Generate Kysely database types from a Prisma schema",
+    "name": "prisma-kysely-zod",
+    "version": "0.1.0",
+    "description": "Generate Kysely types and Zod schemas from your Prisma schema",
     "repository": {
-        "url": "git+https://github.com/valtyr/prisma-kysely.git"
+        "url": "git+https://github.com/mplummeridge/prisma-kysely-zod.git"
     },
     "license": "MIT",
     "author": {
-        "name": "Valtyr Orn Kjartansson",
-        "url": "http://valtyr.is"
+        "name": "prisma-kysely-zod contributors"
     },
     "contributors": [
         {
-            "name": "Alistair Smith",
-            "url": "https://alistair.sh"
-        },
-        {
-            "name": "Arthur Fiorette",
-            "url": "https://arthur.place"
+            "name": "Based on prisma-kysely by Valtyr Orn Kjartansson"
         }
     ],
     "main": "dist/generator.js",
     "bin": {
-        "prisma-kysely": "dist/bin.js"
+        "prisma-kysely-zod": "dist/bin.js"
     },
     "files": [
         "dist"
