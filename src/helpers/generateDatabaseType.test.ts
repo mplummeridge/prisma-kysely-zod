@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 
 import { generateDatabaseType } from "~/helpers/generateDatabaseType";
-import { stringifyTsNode } from "~/utils/testUtils";
+import { stringifyTsNode, createTestConfig } from "~/utils/testUtils";
 
 test("it works for plain vanilla type names", () => {
   const node = generateDatabaseType(
@@ -10,17 +10,9 @@ test("it works for plain vanilla type names", () => {
       { tableName: "Session", typeName: "Session" },
       { tableName: "User", typeName: "User" },
     ],
-    {
+    createTestConfig({
       databaseProvider: "postgresql",
-      fileName: "",
-      enumFileName: "",
-      camelCase: false,
-      readOnlyIds: false,
-      groupBySchema: false,
-      defaultSchema: "public",
-      dbTypeName: "DB",
-      importExtension: "",
-    }
+    })
   );
   const result = stringifyTsNode(node);
 
@@ -38,17 +30,10 @@ test("it respects camelCase option names", () => {
       { tableName: "session", typeName: "Session" },
       { tableName: "user_table", typeName: "User" },
     ],
-    {
+    createTestConfig({
       databaseProvider: "postgresql",
-      fileName: "",
-      enumFileName: "",
       camelCase: true,
-      readOnlyIds: false,
-      groupBySchema: false,
-      defaultSchema: "public",
-      dbTypeName: "DB",
-      importExtension: "",
-    }
+    })
   );
   const result = stringifyTsNode(node);
 
@@ -76,6 +61,11 @@ test("it works for table names with spaces and weird symbols", () => {
       defaultSchema: "public",
       dbTypeName: "DB",
       importExtension: "",
+      generateZodSchemas: false,
+      useDefaultValidators: true,
+      generateBrandRegistry: false,
+      generateThreeLayers: false,
+      generateCrudSchemas: false,
     }
   );
   const result = stringifyTsNode(node);
@@ -106,6 +96,11 @@ test("ensure dbTypeName works", () => {
       defaultSchema: "public",
       dbTypeName: random,
       importExtension: "",
+      generateZodSchemas: false,
+      useDefaultValidators: true,
+      generateBrandRegistry: false,
+      generateThreeLayers: false,
+      generateCrudSchemas: false,
     }
   );
   const result = stringifyTsNode(node);

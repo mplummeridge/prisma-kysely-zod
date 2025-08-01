@@ -99,6 +99,11 @@ test("it generates a model!", () => {
       defaultSchema: "public",
       dbTypeName: "DB",
       importExtension: "",
+      generateZodSchemas: false,
+      useDefaultValidators: true,
+      generateBrandRegistry: false,
+      generateThreeLayers: false,
+      generateCrudSchemas: false,
     },
     {
       groupBySchema: false,
@@ -166,6 +171,11 @@ test("it respects camelCase option", () => {
       defaultSchema: "public",
       dbTypeName: "DB",
       importExtension: "",
+      generateZodSchemas: false,
+      useDefaultValidators: true,
+      generateBrandRegistry: false,
+      generateThreeLayers: false,
+      generateCrudSchemas: false,
     },
     {
       groupBySchema: false,

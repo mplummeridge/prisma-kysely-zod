@@ -53,6 +53,37 @@ export const configValidator = z
 
     // Group models in a namespace by their schema. Cannot be defined if enumFileName is defined.
     filterBySchema: z.array(z.string()).optional(),
+
+    // Generate Zod schemas alongside TypeScript types
+    generateZodSchemas: booleanStringLiteral.default(false),
+    
+    // Output file for Zod schemas (if separate from types)
+    zodSchemasFileName: z.string().optional(),
+    
+    // Automatically add default validators (uuid, cuid, int) based on field characteristics
+    useDefaultValidators: booleanStringLiteral.default(true),
+
+    // Phase 3: Generate brand registry from @zod.brand() annotations
+    generateBrandRegistry: booleanStringLiteral.default(false),
+
+    // Phase 4: Generate three-layer architecture schemas
+    generateThreeLayers: booleanStringLiteral.default(false),
+
+    // Phase 5: Generate CRUD operation schemas
+    generateCrudSchemas: booleanStringLiteral.default(false),
+    
+    // CRUD-specific configuration
+    crudConfig: z.object({
+      outputDir: z.string().default('crud'),
+      includeModels: z.array(z.string()).optional(),
+      excludeModels: z.array(z.string()).optional(),
+      paginationStrategy: z.enum(['offset', 'cursor', 'both']).default('offset'),
+      maxPageSize: z.number().default(100),
+      generateIndex: booleanStringLiteral.default(true),
+    }).optional(),
+
+    // Phase 6: Generate SQLite boolean plugin
+    generateSQLiteBooleanPlugin: booleanStringLiteral.default(false),
   })
   .strict()
   .transform((config) => {

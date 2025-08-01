@@ -27,6 +27,11 @@ test("it respects overrides when generating field types", () => {
     defaultSchema: "public",
     dbTypeName: "DB",
     importExtension: "",
+    generateZodSchemas: false,
+    useDefaultValidators: true,
+    generateBrandRegistry: false,
+    generateThreeLayers: false,
+    generateCrudSchemas: false,
   };
 
   const sourceTypes = [
@@ -59,6 +64,11 @@ test("it respects overrides when generating field types", () => {
     defaultSchema: "public",
     dbTypeName: "DB",
     importExtension: "",
+    generateZodSchemas: false,
+    useDefaultValidators: true,
+    generateBrandRegistry: false,
+    generateThreeLayers: false,
+    generateCrudSchemas: false,
   });
 
   expect(node).toEqual("cheese");
@@ -75,6 +85,11 @@ test("it respects differences between database engines", () => {
     defaultSchema: "public",
     dbTypeName: "DB",
     importExtension: "",
+    generateZodSchemas: false,
+    useDefaultValidators: true,
+    generateBrandRegistry: false,
+    generateThreeLayers: false,
+    generateCrudSchemas: false,
   });
 
   const mysqlBooleanType = generateFieldType("Boolean", {
@@ -87,6 +102,11 @@ test("it respects differences between database engines", () => {
     defaultSchema: "public",
     dbTypeName: "DB",
     importExtension: "",
+    generateZodSchemas: false,
+    useDefaultValidators: true,
+    generateBrandRegistry: false,
+    generateThreeLayers: false,
+    generateCrudSchemas: false,
   });
 
   const sqliteBooleanType = generateFieldType("Boolean", {
@@ -99,6 +119,11 @@ test("it respects differences between database engines", () => {
     defaultSchema: "public",
     dbTypeName: "DB",
     importExtension: "",
+    generateZodSchemas: false,
+    useDefaultValidators: true,
+    generateBrandRegistry: false,
+    generateThreeLayers: false,
+    generateCrudSchemas: false,
   });
 
   expect(postgresBooleanType).toEqual("boolean");
@@ -118,6 +143,11 @@ test("it throws an error when unsupported type is encountered", () => {
       defaultSchema: "public",
       dbTypeName: "DB",
       importExtension: "",
+      generateZodSchemas: false,
+      useDefaultValidators: true,
+      generateBrandRegistry: false,
+      generateThreeLayers: false,
+      generateCrudSchemas: false,
     })
   ).toThrowError(new Error("Unsupported type Json for database sqlite"));
 });

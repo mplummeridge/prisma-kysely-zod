@@ -1,0 +1,130 @@
+// Example Prisma schema showing all annotation features
+
+generator kysely {
+  provider = "prisma-kysely"
+  output = "./generated/kysely"
+  fileName = "types.ts"
+  
+  // Phase 2: Enable Zod schema generation
+  generateZodSchemas = "true"
+  zodSchemasFileName = "schemas.ts"
+  
+  // Phase 3: Enable brand registry
+  generateBrandRegistry = "true"
+  
+  // Phase 4: Enable three-layer architecture
+  generateThreeLayers = "true"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+/// User account in the system
+model User {
+  /// Unique identifier for the user
+  /// @zod.cuid().brand("UserId")
+  id String @id @default(cuid())
+
+  /// User's email address
+  /// @zod.email().toLowerCase()
+  email String @unique
+
+  /// User's display name
+  /// @zod.min(2).max(50).trim()
+  name String?
+
+  /// Account verification status
+  verified Boolean @default(false)
+
+  /// User's role in the system
+  role Role @default(USER)
+
+  /// Account creation timestamp
+  createdAt DateTime @default(now())
+
+  /// Last update timestamp
+  updatedAt DateTime @updatedAt
+
+  /// Additional user metadata
+  /// @kyselyType(import('#shared/zod/user-metadata').UserMetadata)
+  metadata Json?
+
+  posts    Post[]
+  comments Comment[]
+}
+
+/// Blog post or article
+model Post {
+  /// Unique post identifier
+  /// @zod.cuid().brand("PostId")
+  id String @id @default(cuid())
+
+  /// Post title
+  /// @zod.min(5).max(200).trim()
+  title String
+
+  /// Post content in markdown
+  /// @zod.min(10).max(50000)
+  content String
+
+  /// Publication status
+  published Boolean @default(false)
+
+  /// View counter
+  /// @zod.int().nonnegative()
+  views Int @default(0)
+
+  /// Author of the post
+  /// @zod.cuid().brand("UserId")
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  /// Post creation time
+  createdAt DateTime @default(now())
+
+  /// Last modification time
+  updatedAt DateTime @updatedAt
+
+  /// SEO and metadata information
+  /// @kyselyType(import('#shared/zod/post-metadata').PostMetadata | null)
+  metadata Json?
+
+  comments Comment[]
+}
+
+/// Comment on a post
+model Comment {
+  /// Unique comment identifier
+  /// @zod.cuid().brand("CommentId")
+  id String @id @default(cuid())
+
+  /// Comment text content
+  /// @zod.min(1).max(5000).trim()
+  content String
+
+  /// Parent post
+  /// @zod.cuid().brand("PostId")
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  /// Comment author
+  /// @zod.cuid().brand("UserId")
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  /// Creation timestamp
+  createdAt DateTime @default(now())
+
+  /// Moderation status
+  /// @kyselyType(import('#shared/zod/moderation').ModerationStatus)
+  moderationStatus Json @default("{\"status\":\"pending\"}")
+}
+
+/// User roles in the system
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
