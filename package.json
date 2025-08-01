@@ -54,7 +54,7 @@
         "kysely": "^0.28.3",
         "mysql2": "^3.14.1",
         "pg": "^8.16.2",
-        "prettier": "^3.5.3",
+        "prettier": "^3.6.2",
         "prisma": "6.10.1",
         "ts-patch": "^3.3.0",
         "typescript-transform-paths": "^3.5.5",
